@@ -2,9 +2,18 @@ package edu.buffalo.cse.cse486586.groupmessenger1;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.net.Uri;
 import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * GroupMessengerProvider is a key-value table. Once again, please note that we do not implement
@@ -50,6 +59,17 @@ public class GroupMessengerProvider extends ContentProvider {
          * internal storage option that we used in PA1. If you want to use that option, please
          * take a look at the code for PA1.
          */
+        FileOutputStream outputStream;
+
+        try {
+            outputStream = getContext().openFileOutput(values.get("key").toString(), Context.MODE_PRIVATE);
+            outputStream.write(values.get("value").toString().getBytes());
+            outputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Log.v("insert", values.toString());
         return uri;
     }
@@ -80,7 +100,38 @@ public class GroupMessengerProvider extends ContentProvider {
          * recommend building a MatrixCursor described at:
          * http://developer.android.com/reference/android/database/MatrixCursor.html
          */
+        FileInputStream inputStream;
+        String output = "";
+        try {
+            inputStream = getContext().openFileInput(selection);
+            StringBuilder sb = new StringBuilder();
+            int line;
+            while ((line = inputStream.read()) != -1) {
+                sb.append((char) line);
+            }
+            inputStream.close();
+            output=sb.toString();
+            Log.d("test","Value of output: "+output);
+            System.out.print(output);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] column=new String[] {"key","value"};
+        Log.d("test","After string array");
+        MatrixCursor cr =new MatrixCursor(column);
+        //Log.d("test","After Matrixcursor");
+        //outputStream.write(values.get("value").toString().getBytes());
+        //Log.d("test","Value os selection: "+selection);
+        //Log.d("test","Value os output: "+output);
+        cr.addRow(new Object[] {selection,output});
+        //Log.d("test","column count in cursor object: "+cr.getColumnCount());
+        //String[] blah={cr.getString(0),cr.getString(1)};
+        //Log.d("test","column count 0 in cursor object: "+blah[0]);
+        //Log.d("test","column count 1 in cursor object: "+blah[1]);
+        //Log.d("test","After addRow function");
         Log.v("query", selection);
-        return null;
+        return cr;
     }
 }

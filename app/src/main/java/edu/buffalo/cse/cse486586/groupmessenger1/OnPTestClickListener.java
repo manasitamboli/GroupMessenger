@@ -122,7 +122,7 @@ public class OnPTestClickListener implements OnClickListener {
             for (int i = 0; i < TEST_CNT; i++) {
                 String key = (String) mContentValues[i].get(KEY_FIELD);
                 String val = (String) mContentValues[i].get(VALUE_FIELD);
-
+                Log.d("test","Value of key for query: "+key);
                 Cursor resultCursor = mContentResolver.query(mUri, null, key, null, null);
                 if (resultCursor == null) {
                     Log.e(TAG, "Result null");
